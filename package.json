@@ -1,0 +1,29 @@
+{
+  "name": "eloguess",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "prepare:engine": "node tools/prepare-engine.mjs",
+    "dev": "npm run prepare:engine && vite --host 127.0.0.1",
+    "build": "npm run prepare:engine && tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "chess.js": "1.4.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "stockfish": "18.0.8"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.0"
+  }
+}

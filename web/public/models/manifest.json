@@ -1,0 +1,11 @@
+{
+  "status": "trained",
+  "file": "elo-gru-v1.json",
+  "ratingPool": "estimated-strength",
+  "sha256": "eeb72926758e4c6e2f0a9bd167a81aaa19c7893558e4d388fe311e486ffbbcfa",
+  "experimental": true,
+  "trainingGames": 373687,
+  "architecture": "RatingGRU",
+  "inputMode": "moves-only",
+  "testMae": 198.47208575544687
+}

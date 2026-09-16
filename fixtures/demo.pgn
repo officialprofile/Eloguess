@@ -1,0 +1,26 @@
+[Event "Example game"]
+[Result "0-1"]
+
+1. e4 1... Nc6 2. d4 
+2... Nf6 3. d5 3... Ne5
+ 4. Bf4 4... Ng6 5. e5
+ 5... Ne4 6. Bd3 6...
+Nxf4 7. Bxe4 7... d6 
+8. g3 8... f5 9. gxf4 
+9... fxe4 10. f3 10... dxe5
+ 11. fxe5 11... exf3 
+12. Nxf3 12... Bg4 13. Rg1
+ 13... Bxf3 14. Qxf3 
+14... Qd7 15. Nc3 15... e6
+ 16. Rd1 16... O-O-O 
+17. dxe6 17... Qxe6 18. Rxd8+
+ 18... Kxd8 19. Qxb7 
+19... Qxe5+ 20. Ne2 20... Bc5
+ 21. Qb8+ 21... Kd7 22.
+Qb5+ 22... Ke6 23. Qc6+
+ 23... Ke7 24. b4 24...
+Bxg1 25. b5 25... Bxh2 
+26. Kf1 26... Rf8+ 27. Kg2
+ 27... Qxe2+ 28. Kh3 
+28... Rf3+ 29. Kg4 29... Rf4+
+ 30. Kg5 30... Qg4# 0-1
