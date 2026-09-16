@@ -67,7 +67,9 @@ The build checks TypeScript and writes the static website to `dist/`. The
 1. Push the project to a GitHub repository. The `.gitignore` includes the website,
    ready-to-use model and build configuration.
 2. In **Settings → Pages**, set **Source** to **GitHub Actions**.
-3. Run the **Publish GitHub Pages** workflow from the **Actions** tab.
+3. Push to `main` to build and publish the website automatically. For the first
+   deployment after enabling Pages, you can also run **Publish GitHub Pages**
+   manually from the **Actions** tab.
 
 The workflow builds and publishes `dist/` with the correct repository base path.
 Training archives, Python, API keys and a model server are not needed to build
