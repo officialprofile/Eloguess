@@ -1,11 +1,12 @@
 {
   "status": "trained",
   "file": "elo-gru-v1.json",
-  "ratingPool": "estimated-strength",
-  "sha256": "eeb72926758e4c6e2f0a9bd167a81aaa19c7893558e4d388fe311e486ffbbcfa",
-  "experimental": true,
-  "trainingGames": 373687,
+  "sha256": "38d3aeb99dcb3f1967c61927b47553d5326ea797dbb9b08042711bb8ced73d56",
   "architecture": "RatingGRU",
   "inputMode": "moves-only",
-  "testMae": 198.47208575544687
+  "ratingPool": "estimated-strength",
+  "experimental": true,
+  "trainingGames": 201232,
+  "testMae": 180.25024602954275,
+  "evaluationPopulation": "broad-reference-with-separate-tail-gates"
 }
