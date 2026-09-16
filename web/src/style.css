@@ -325,7 +325,14 @@ progress {
   border-radius:5px;
 }
 .results {
-  margin-top:56px;
+  margin-top:32px;
+}
+.game-result {
+  margin:0 0 24px;
+  text-align:center;
+  font-size:18px;
+  font-weight:600;
+  overflow-wrap:anywhere;
 }
 .empty-results {
   padding:32px;
@@ -359,6 +366,18 @@ progress {
 .player-card {
   min-width:0;
   padding:24px;
+}
+.player-card[data-outcome="win"] {
+  background:#eef5e8;
+  border-color:#d5e2ce;
+}
+.player-card[data-outcome="loss"] {
+  background:#f9ece8;
+  border-color:#e9d4cd;
+}
+.player-card[data-outcome="draw"] {
+  background:#efefeb;
+  border-color:#dbdcd6;
 }
 .player-title {
   display:flex;

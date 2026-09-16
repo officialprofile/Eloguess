@@ -30,6 +30,7 @@ export function App() {
   const [error, setError] = useState('');
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [playerNames, setPlayerNames] = useState({ white: 'White', black: 'Black' });
+  const [gameResult, setGameResult] = useState<'white' | 'black' | 'draw' | null>(null);
   const [fromCache, setFromCache] = useState(false);
   const [ply, setPly] = useState(0);
   const [model, setModel] = useState<ModelBundle | null>(null);
@@ -67,8 +68,10 @@ export function App() {
     } catch (e) { setError((e as Error).message); return; }
     const headers = game.getHeaders();
     const id = ++runId.current;
-    // Names belong to this submission, including when move analysis is reused from the cache.
+    // Names and result belong to this submission, even when move analysis comes from the cache.
     setPlayerNames({ white: playerName(headers.White, 'White'), black: playerName(headers.Black, 'Black') });
+    const result = headers.Result?.trim();
+    setGameResult(result === '1-0' ? 'white' : result === '0-1' ? 'black' : result === '1/2-1/2' ? 'draw' : null);
     setBusy(true); setAnalysis(null); setFromCache(false); setProgress([0, 0]); setPly(0);
     let engine: ReturnType<typeof browserEngine> | null = null;
     try {
@@ -86,6 +89,8 @@ export function App() {
   function cancel() { runId.current++; engineRef.current?.dispose(); engineRef.current = null; setBusy(false); setError('Analysis cancelled.'); }
   const fen = analysis ? (ply ? analysis.moves[ply-1].after : analysis.initialFen) : new Chess().fen();
   const selected = analysis && ply ? analysis.moves[ply-1] : null;
+  const resultScore = gameResult === 'draw' ? '½ : ½' : gameResult === 'white' ? '1 : 0' : gameResult === 'black' ? '0 : 1' : null;
+  const resultMessage = resultScore ? `${playerNames.white} ${resultScore} ${playerNames.black}` : null;
   return <>
     <header className="topbar">
       <a className="brand" href="https://officialprofile.github.io/Eloguess"><span className="brand-icon" aria-hidden="true">♞</span>eloguess</a>
@@ -110,11 +115,13 @@ export function App() {
       </div>
       <section className="results" aria-live="polite">
         {!analysis ? <div className="empty-results"><span>♙</span><p>Results for both players will appear here.<small>Paste a PGN or try the example game to get started.</small></p></div> : <>
+          {resultMessage && <p className="game-result">{resultMessage}</p>}
           <div className="player-grid">{(['white', 'black'] as const).map(color => {
             const player = analysis[color]; const prediction = predictionResult.ratings?.[color];
+            const outcome = gameResult === 'draw' ? 'draw' : gameResult ? (gameResult === color ? 'win' : 'loss') : undefined;
             // The displayed range starts halfway from the model median to its upper bound.
             const optimisticRating = prediction ? (prediction.median + prediction.upper) / 2 : null;
-            return <article className="player-card card" key={color}><div className="player-title"><span>{color === 'white' ? '♔' : '♚'}</span><h3>{playerNames[color]}</h3></div>
+            return <article className="player-card card" data-outcome={outcome} key={color}><div className="player-title"><span>{color === 'white' ? '♔' : '♚'}</span><h3>{playerNames[color]}</h3></div>
               {prediction && optimisticRating !== null ? <div className="rating"><strong>{Math.round(optimisticRating/100)*100}–{Math.ceil(prediction.upper/50)*50}</strong><span>Estimated playing strength</span>
               </div> : <p className="model-status">{predictionResult.message}</p>}
               <dl><div><dt>Average loss</dt><dd>{Math.round(player.features.mean_loss)} <small>cp</small></dd></div><div><dt>Key decisions</dt><dd>{player.informativeMoves}</dd></div><div><dt>Best moves</dt><dd>{Math.round(player.features.best_fraction*100)}<small>%</small></dd></div></dl>
