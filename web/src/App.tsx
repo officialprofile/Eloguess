@@ -15,6 +15,20 @@ function playerName(value: string | undefined, fallback: string) {
   return name && !/^[?-]+$/.test(name) ? name : fallback;
 }
 
+function playerProfile(site: string | undefined, value: string | undefined): string | null {
+  const name = playerName(value, '');
+  if (!site?.trim() || !name) return null;
+  try {
+    const address = site.trim();
+    const url = new URL(/^[a-z][a-z\d+.-]*:/i.test(address) ? address : `https://${address}`);
+    if (!['http:', 'https:'].includes(url.protocol)) return null;
+    const matches = (domain: string) => url.hostname === domain || url.hostname.endsWith(`.${domain}`);
+    if (matches('lichess.org') || matches('lichess.com')) return `https://lichess.org/@/${encodeURIComponent(name)}`;
+    if (matches('chess.com')) return `https://www.chess.com/member/${encodeURIComponent(name.toLowerCase())}`;
+  } catch { /* An unrecognized Site leaves the player name as plain text. */ }
+  return null;
+}
+
 function Board({ fen }: { fen: string }) {
   const board = new Chess(fen).board();
   return <div className="board" aria-label="Chessboard position">{board.flatMap((row, r) => row.map((piece, c) => <div key={`${r}-${c}`} className={`square ${(r+c)%2 ? 'dark' : 'light'}`}>
@@ -30,6 +44,7 @@ export function App() {
   const [error, setError] = useState('');
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [playerNames, setPlayerNames] = useState({ white: 'White', black: 'Black' });
+  const [playerProfiles, setPlayerProfiles] = useState<{ white: string | null; black: string | null }>({ white: null, black: null });
   const [gameResult, setGameResult] = useState<'white' | 'black' | 'draw' | null>(null);
   const [fromCache, setFromCache] = useState(false);
   const [ply, setPly] = useState(0);
@@ -68,8 +83,9 @@ export function App() {
     } catch (e) { setError((e as Error).message); return; }
     const headers = game.getHeaders();
     const id = ++runId.current;
-    // Names and result belong to this submission, even when move analysis comes from the cache.
+    // Player details and result belong to this submission, even when analysis comes from the cache.
     setPlayerNames({ white: playerName(headers.White, 'White'), black: playerName(headers.Black, 'Black') });
+    setPlayerProfiles({ white: playerProfile(headers.Site, headers.White), black: playerProfile(headers.Site, headers.Black) });
     const result = headers.Result?.trim();
     setGameResult(result === '1-0' ? 'white' : result === '0-1' ? 'black' : result === '1/2-1/2' ? 'draw' : null);
     setBusy(true); setAnalysis(null); setFromCache(false); setProgress([0, 0]); setPly(0);
@@ -89,8 +105,6 @@ export function App() {
   function cancel() { runId.current++; engineRef.current?.dispose(); engineRef.current = null; setBusy(false); setError('Analysis cancelled.'); }
   const fen = analysis ? (ply ? analysis.moves[ply-1].after : analysis.initialFen) : new Chess().fen();
   const selected = analysis && ply ? analysis.moves[ply-1] : null;
-  const resultScore = gameResult === 'draw' ? '½ : ½' : gameResult === 'white' ? '1 : 0' : gameResult === 'black' ? '0 : 1' : null;
-  const resultMessage = resultScore ? `${playerNames.white} ${resultScore} ${playerNames.black}` : null;
   return <>
     <header className="topbar">
       <a className="brand" href="https://officialprofile.github.io/Eloguess"><span className="brand-icon" aria-hidden="true">♞</span>eloguess</a>
@@ -115,13 +129,17 @@ export function App() {
       </div>
       <section className="results" aria-live="polite">
         {!analysis ? <div className="empty-results"><span>♙</span><p>Results for both players will appear here.<small>Paste a PGN or try the example game to get started.</small></p></div> : <>
-          {resultMessage && <p className="game-result">{resultMessage}</p>}
           <div className="player-grid">{(['white', 'black'] as const).map(color => {
             const player = analysis[color]; const prediction = predictionResult.ratings?.[color];
             const outcome = gameResult === 'draw' ? 'draw' : gameResult ? (gameResult === color ? 'win' : 'loss') : undefined;
+            const outcomeLabel = outcome === 'win' ? 'won' : outcome === 'loss' ? 'lost' : outcome === 'draw' ? 'draw' : null;
+            const profile = playerProfiles[color];
             // The displayed range runs from the median to the midpoint toward the upper bound.
             const midpointRating = prediction ? (prediction.median + prediction.upper) / 2 : null;
-            return <article className="player-card card" data-outcome={outcome} key={color}><div className="player-title"><span>{color === 'white' ? '♔' : '♚'}</span><h3>{playerNames[color]}</h3></div>
+            return <article className="player-card card" data-outcome={outcome} key={color}><div className="player-title"><span>{color === 'white' ? '♔' : '♚'}</span><h3>
+              {profile ? <a href={profile} target="_blank" rel="noopener noreferrer">{playerNames[color]}</a> : playerNames[color]}
+              {outcomeLabel && <> <span className="player-outcome">({outcomeLabel})</span></>}
+            </h3></div>
               {prediction && midpointRating !== null ? <div className="rating"><strong>{Math.round(prediction.median/100)*100}–{Math.round(midpointRating/100)*100}</strong><span>Estimated playing strength</span>
               </div> : <p className="model-status">{predictionResult.message}</p>}
               <dl><div><dt>Average loss</dt><dd>{Math.round(player.features.mean_loss)} <small>cp</small></dd></div><div><dt>Key decisions</dt><dd>{player.informativeMoves}</dd></div><div><dt>Best moves</dt><dd>{Math.round(player.features.best_fraction*100)}<small>%</small></dd></div></dl>
@@ -131,5 +149,6 @@ export function App() {
         </>}
       </section>
     </main>
+    <footer><small>Estimates are based on Lichess ratings.</small></footer>
   </>;
 }

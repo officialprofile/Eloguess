@@ -327,13 +327,6 @@ progress {
 .results {
   margin-top:32px;
 }
-.game-result {
-  margin:0 0 24px;
-  text-align:center;
-  font-size:18px;
-  font-weight:600;
-  overflow-wrap:anywhere;
-}
 .empty-results {
   padding:32px;
   border:1px dashed #cfd5c3;
@@ -394,6 +387,17 @@ progress {
   font-size:17px;
   font-weight:550;
 }
+.player-title a {
+  text-decoration-color:#879580;
+  text-underline-offset:3px;
+}
+.player-title a:hover {
+  text-decoration-color:currentColor;
+}
+.player-outcome {
+  font-weight:400;
+  white-space:nowrap;
+}
 .model-status {
   font-size:12px;
   line-height:1.7;
@@ -446,17 +450,16 @@ dd small {
   margin:0;
 }
 footer {
-  border-top:1px solid #dfe2d4;
   max-width:1200px;
   margin:auto;
-  padding:26px 44px;
-  display:flex;
-  justify-content:space-between;
-  font-size:10px;
-  color:#88917d;
+  padding:0 44px 24px;
+  text-align:center;
+  font-size:11px;
+  line-height:1.7;
+  color:#69776b;
 }
-footer a {
-  text-decoration:none;
+footer small {
+  font-size:inherit;
 }
 @media(max-width:1200px) {
   main {
@@ -525,9 +528,7 @@ footer a {
     margin-top:12px;
   }
   footer {
-    padding:23px;
-    gap:20px;
-    line-height:1.7;
+    padding:0 22px 20px;
   }
   .empty-results {
     padding:22px;
