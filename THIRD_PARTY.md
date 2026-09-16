@@ -27,8 +27,8 @@ Downloaded monthly archives and per-game research artifacts are not included in 
 
 ## Example game
 
-The UI example in `fixtures/demo.pgn` comes from the August 2026 Lichess archive
-(CC0), selected from the pilot's training split. Player identities and ratings
-were removed, along with time-control and clock metadata in the user-facing example. Its dataset ID is
-`00cea46a20eee547df7653f9e19f156f5d61da33787722fd86aff1e77abf9f74`.
+The UI example in `fixtures/demo.pgn` is the user-provided Kicer–Dziango game
+from June 12, 2026: https://lichess.org/q76PObcd.
+The supplied player names, ratings and time-control headers are preserved.
+Ratings and time controls are ignored when estimating playing strength.
 It demonstrates the interface and is not evidence of held-out model accuracy.

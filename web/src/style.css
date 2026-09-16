@@ -326,8 +326,6 @@ progress {
 }
 .results {
   margin-top:56px;
-  border-top:1px solid #dcdfd0;
-  padding-top:29px;
 }
 .empty-results {
   padding:32px;
@@ -359,6 +357,7 @@ progress {
   gap:24px;
 }
 .player-card {
+  min-width:0;
   padding:24px;
 }
 .player-title {
@@ -368,8 +367,11 @@ progress {
 }
 .player-title>span {
   font-size:28px;
+  flex-shrink:0;
 }
 .player-title h3 {
+  min-width:0;
+  overflow-wrap:anywhere;
   font-size:17px;
   font-weight:550;
 }
@@ -406,9 +408,6 @@ dd small {
   font-size:11px;
   font-weight:400;
   color:#839077;
-}
-.player-card .hint {
-  margin-bottom:0;
 }
 .research-note {
   margin-top:32px;

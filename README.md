@@ -10,6 +10,7 @@ entirely in your browser, so the app can be hosted on GitHub Pages.
   median and upper bound (rounded to 100 points) to the upper bound (rounded up
   to 50 points).
 - Move-quality statistics for both players.
+- Player names from PGN headers, with White/Black labels when names are missing.
 - **Moves only:** time controls, clock comments, elapsed time and time pressure
   do not affect the estimate. PGNs without timing information work normally.
 - Interactive board with move navigation.

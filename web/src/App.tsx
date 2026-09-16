@@ -10,6 +10,11 @@ import example from '../../fixtures/demo.pgn?raw';
 
 const symbols: Record<string, string> = { wk: '♔', wq: '♕', wr: '♖', wb: '♗', wn: '♘', wp: '♙', bk: '♚', bq: '♛', br: '♜', bb: '♝', bn: '♞', bp: '♟' };
 
+function playerName(value: string | undefined, fallback: string) {
+  const name = value?.trim();
+  return name && !/^[?-]+$/.test(name) ? name : fallback;
+}
+
 function Board({ fen }: { fen: string }) {
   const board = new Chess(fen).board();
   return <div className="board" aria-label="Chessboard position">{board.flatMap((row, r) => row.map((piece, c) => <div key={`${r}-${c}`} className={`square ${(r+c)%2 ? 'dark' : 'light'}`}>
@@ -24,6 +29,7 @@ export function App() {
   const [progress, setProgress] = useState([0, 0]);
   const [error, setError] = useState('');
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  const [playerNames, setPlayerNames] = useState({ white: 'White', black: 'Black' });
   const [fromCache, setFromCache] = useState(false);
   const [ply, setPly] = useState(0);
   const [model, setModel] = useState<ModelBundle | null>(null);
@@ -54,8 +60,15 @@ export function App() {
   async function start() {
     setError('');
     let parsed;
-    try { parsed = parseGame(pgn, undefined, { ignoreTime: true }); } catch (e) { setError((e as Error).message); return; }
+    const game = new Chess();
+    try {
+      parsed = parseGame(pgn, undefined, { ignoreTime: true });
+      game.loadPgn(pgn);
+    } catch (e) { setError((e as Error).message); return; }
+    const headers = game.getHeaders();
     const id = ++runId.current;
+    // Names belong to this submission, including when move analysis is reused from the cache.
+    setPlayerNames({ white: playerName(headers.White, 'White'), black: playerName(headers.Black, 'Black') });
     setBusy(true); setAnalysis(null); setFromCache(false); setProgress([0, 0]); setPly(0);
     let engine: ReturnType<typeof browserEngine> | null = null;
     try {
@@ -101,11 +114,10 @@ export function App() {
             const player = analysis[color]; const prediction = predictionResult.ratings?.[color];
             // The displayed range starts halfway from the model median to its upper bound.
             const optimisticRating = prediction ? (prediction.median + prediction.upper) / 2 : null;
-            return <article className="player-card card" key={color}><div className="player-title"><span>{color === 'white' ? '♔' : '♚'}</span><h3>{color === 'white' ? 'White' : 'Black'}</h3></div>
+            return <article className="player-card card" key={color}><div className="player-title"><span>{color === 'white' ? '♔' : '♚'}</span><h3>{playerNames[color]}</h3></div>
               {prediction && optimisticRating !== null ? <div className="rating"><strong>{Math.round(optimisticRating/100)*100}–{Math.ceil(prediction.upper/50)*50}</strong><span>Estimated playing strength</span>
               </div> : <p className="model-status">{predictionResult.message}</p>}
               <dl><div><dt>Average loss</dt><dd>{Math.round(player.features.mean_loss)} <small>cp</small></dd></div><div><dt>Key decisions</dt><dd>{player.informativeMoves}</dd></div><div><dt>Best moves</dt><dd>{Math.round(player.features.best_fraction*100)}<small>%</small></dd></div></dl>
-              <p className="hint">Loss statistics exclude forced moves and the early opening.</p>
             </article>;
           })}</div>
           {fromCache && <p className="hint">Loaded a previous analysis saved on this device.</p>}
