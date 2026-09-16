@@ -119,10 +119,10 @@ export function App() {
           <div className="player-grid">{(['white', 'black'] as const).map(color => {
             const player = analysis[color]; const prediction = predictionResult.ratings?.[color];
             const outcome = gameResult === 'draw' ? 'draw' : gameResult ? (gameResult === color ? 'win' : 'loss') : undefined;
-            // The displayed range starts halfway from the model median to its upper bound.
-            const optimisticRating = prediction ? (prediction.median + prediction.upper) / 2 : null;
+            // The displayed range runs from the median to the midpoint toward the upper bound.
+            const midpointRating = prediction ? (prediction.median + prediction.upper) / 2 : null;
             return <article className="player-card card" data-outcome={outcome} key={color}><div className="player-title"><span>{color === 'white' ? '♔' : '♚'}</span><h3>{playerNames[color]}</h3></div>
-              {prediction && optimisticRating !== null ? <div className="rating"><strong>{Math.round(optimisticRating/100)*100}–{Math.ceil(prediction.upper/50)*50}</strong><span>Estimated playing strength</span>
+              {prediction && midpointRating !== null ? <div className="rating"><strong>{Math.round(prediction.median/100)*100}–{Math.round(midpointRating/100)*100}</strong><span>Estimated playing strength</span>
               </div> : <p className="model-status">{predictionResult.message}</p>}
               <dl><div><dt>Average loss</dt><dd>{Math.round(player.features.mean_loss)} <small>cp</small></dd></div><div><dt>Key decisions</dt><dd>{player.informativeMoves}</dd></div><div><dt>Best moves</dt><dd>{Math.round(player.features.best_fraction*100)}<small>%</small></dd></div></dl>
             </article>;
